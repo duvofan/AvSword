@@ -1,0 +1,21 @@
+name: AvSword
+version: '1.1.0'
+main: org.duvo.avsword.AvSword
+api-version: '1.16'
+authors: [ Duvo ]
+description: Add right-click abilities to swords with potion effects. Also comes with some cool custom effects.
+softdepend: [WorldGuard]
+
+commands:
+  avsword:
+    description: AvSword main command.
+    usage: /avsword <subcommand>
+    aliases: [sword, asword]
+
+permissions:
+  avsword.bypass.cooldown:
+    description: Bypasses sword ability cooldowns.
+    default: op
+  avsword.admin:
+    description: Admin commands for AvSword.
+    default: op

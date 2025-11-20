@@ -1,0 +1,67 @@
+# AvSword English Messages File
+success:
+  enderman: "&5Teleported using the Enderman ability!"
+  dragon: "&9Unleashed Dragon breath!"
+  spider: "&8Trapped enemies in a web!"
+  phantom: "&bLocked nearby elytras!"
+  # sword_name: message
+
+effect_msg:
+  spider-victim: "&8&lYou are trapped in a spider web!"
+  dragon-victim: "&9&lYou are poisoned by dragon breath!"
+  phantom-victim: "&b&lYour elytra has been disabled by Phantom power!"
+  effect-victim: "&b&lYou have been affected by a sword ability!"
+
+feature-disabled: "&cThis sword feature is currently disabled."
+cooldown-wait: "&cAbility is on cooldown! Wait &e%seconds%s&c."
+teleport-no-target: "&cYou must look at a valid block to teleport."
+teleport-invalid: "&cCannot teleport there (obstructed)."
+no-target-enemy: "&cNo enemies found nearby to affect."
+no-target-general: "&cNo targets found nearby."
+config-error: "&cConfiguration error. Contact admin."
+safe-zone: "&eYou cannot use abilities in a Safe Zone."
+safe-zone-pvp: "&ePvP is disabled here. Ability blocked."
+
+# --- COMMAND MESSAGES ---
+command:
+  no-permission: "&cYou do not have permission to do this."
+  reload: "&aAvSword configuration and messages reloaded successfully."
+  list-header: "&6--- Available Custom Swords ---"
+
+  usage-give: "&cUsage: /avsword give <player> <sword_name>"
+  usage-bind: "&cUsage: /avsword bind <sword_name>"
+
+  player-not-found: "&cPlayer not found or offline."
+  sword-not-found: "&cSword '&e%sword%&c' not found in config."
+
+  give-success: "&aGiven &e%sword% &asword to &f%player%&a."
+  only-player: "&cThis command is for players only."
+  no-item: "&cYou must hold an item in your main hand to bind."
+  bind-success: "&aBound &e%sword% &aabilities to your held item!"
+
+  help-header: "&6--- AvSword Commands ---"
+  help-give: "&e/avsword give <player> <sword> &f- Give a custom sword."
+  help-bind: "&e/avsword bind <sword> &f- Bind sword ability to held item."
+  help-create: "&e/avsword create <name> <model> <effect> &f- Create new sword."
+  help-edit: "&e/avsword edit <sword> <setting> <value> &f- Edit settings."
+  help-reload: "&e/avsword reload &f- Reload configuration."
+  help-list: "&e/avsword list &f- List available swords."
+
+  create-exists: "&cA sword named '&e%sword%&c' already exists."
+  create-success: "&aCreated sword '&e%sword%&a' with Model ID &b%model%&a!"
+  create-usage: "&cUsage: /avsword create <name> <model_data> <effect>"
+
+  edit-usage: "&cUsage: /avsword edit <sword> <setting> <value>"
+  edit-success: "&aUpdated &e%setting% &afor &6%sword% &ato &b%value%&a."
+
+  edit-invalid-number: "&cInvalid number format for setting '&e%setting%&c'."
+  edit-invalid-bool: "&cValue must be 'true' or 'false'."
+  edit-unknown-setting: "&cUnknown setting: &e%setting%&c."
+
+  invalid-effect: "&cInvalid effect name! Use TAB to see valid effects."
+
+# --- ITEM LORE ---
+item:
+  name: "&6%sword% Sword"
+  ability: "&7Abilities: &e%ability%"
+  cooldown: "&7Cooldown: &b%seconds%s"

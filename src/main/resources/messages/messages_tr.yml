@@ -1,0 +1,67 @@
+# AvSword Türkçe Mesaj Dosyası
+success:
+  enderman: "&5Enderman yeteneği ile ışınlandın!"
+  dragon: "&9Ejderha nefesi püskürttün!"
+  spider: "&8Düşmanları ağa hapsettin!"
+  phantom: "&bYakındaki elitraları kilitledin!"
+  # kılıç_adı: mesaj
+
+effect_msg:
+  spider-victim: "&8&lBir örümcek ağına yakalandın!"
+  dragon-victim: "&9&lEjderha nefesi ile zehirlendin!"
+  phantom-victim: "&b&lPhantom gücü yüzünden elitran devre dışı kaldı!"
+  effect-victim: "&b&lBir kılıç yeteneğinden etkilendin!"
+
+feature-disabled: "&cBu kılıç özelliği şu an devre dışı."
+cooldown-wait: "&cYetenek bekleme süresinde! &e%seconds%sn &cbekle."
+teleport-no-target: "&cIşınlanmak için geçerli bir bloğa bakmalısın."
+teleport-invalid: "&cOraya ışınlanılamaz (Engel var)."
+no-target-enemy: "&cEtrafta etkilenecek düşman bulunamadı."
+no-target-general: "&cEtrafta hedef bulunamadı."
+config-error: "&cYapılandırma hatası. Lütfen yetkiliye bildir."
+safe-zone: "&eGüvenli Bölge (Safe Zone) içindeyken yetenek kullanamazsın."
+safe-zone-pvp: "&eBurada PvP kapalı. Yetenek engellendi."
+
+# --- KOMUT MESAJLARI ---
+command:
+  no-permission: "&cBunu yapmak için yetkin yok."
+  reload: "&aAvSword yapılandırması ve mesajlar başarıyla yenilendi."
+  list-header: "&6--- Aktif Kılıçlar ---"
+
+  usage-give: "&cKullanım: /avsword give <oyuncu> <kılıç_adı>"
+  usage-bind: "&cKullanım: /avsword bind <kılıç_adı>"
+
+  player-not-found: "&cOyuncu bulunamadı veya çevrimdışı."
+  sword-not-found: "&cConfig dosyasında '&e%sword%&c' bulunamadı."
+
+  give-success: "&e%sword% &akılıcı &f%player% &aoyuncusuna verildi."
+  only-player: "&cBu komutu sadece oyuncular kullanabilir."
+  no-item: "&cBağlama işlemi için elinde bir eşya tutmalısın."
+  bind-success: "&e%sword% &ayetenekleri elindeki eşyaya bağlandı!"
+
+  help-header: "&6--- AvSword Komutları ---"
+  help-give: "&e/avsword give <oyuncu> <kılıç> &f- Özel kılıç verir."
+  help-bind: "&e/avsword bind <kılıç> &f- Kılıç özelliğini eldeki eşyaya basar."
+  help-create: "&e/avsword create <isim> <model> <efekt> &f- Yeni kılıç oluştur."
+  help-edit: "&e/avsword edit <kılıç> <ayar> <değer> &f- Ayarları düzenle."
+  help-reload: "&e/avsword reload &f- Plugini yeniler."
+  help-list: "&e/avsword list &f- Kılıçları listeler."
+
+  create-exists: "&c'&e%sword%&c' adında bir kılıç zaten var."
+  create-success: "&a'&e%sword%&a' kılıcı başarıyla oluşturuldu! (Model ID: &b%model%&a)"
+  create-usage: "&cKullanım: /avsword create <isim> <model_data> <efekt>"
+
+  edit-usage: "&cKullanım: /avsword edit <kılıç> <ayar> <değer>"
+  edit-success: "&6%sword% &aiçin &e%setting% &ayarı &b%value% &aolarak güncellendi."
+
+  edit-invalid-number: "&c'&e%setting%&c' için geçersiz sayı formatı."
+  edit-invalid-bool: "&cDeğer sadece 'true' veya 'false' olabilir."
+  edit-unknown-setting: "&cBilinmeyen ayar: &e%setting%&c."
+
+  invalid-effect: "&cGeçersiz efekt ismi! Listeyi görmek için TAB kullan."
+
+# --- EŞYA AÇIKLAMALARI ---
+item:
+  name: "&6%sword% Kılıcı"
+  ability: "&7Yetenekler: &e%ability%"
+  cooldown: "&7Bekleme: &b%seconds%sn"
