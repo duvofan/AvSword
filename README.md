@@ -1,4 +1,5 @@
 # AvSword
+## Download: https://modrinth.com/plugin/avsword
 
 **AvSword** is a lightweight and optimized combat plugin that introduces unique sword abilities. Designed for PvP servers.
 
