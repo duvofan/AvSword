@@ -5,10 +5,14 @@
 language: en
 
 prefix: "&6AvSword &8»"
+friend-limit: 30
 
 # -------------------------------------------------- #
 #                 Sword Settings                     #
 # -------------------------------------------------- #
+# Note: 'effect' parameter accepts custom effects (ENDERMAN, DRAGON, etc.)
+# or standard Bukkit PotionEffectType names (SPEED, POISON, LEVITATION, etc.)
+
 swords:
   Enderman:
     enabled: true
@@ -28,7 +32,7 @@ swords:
   Dragon:
     enabled: true
     target-enemy-only: true
-    cooldown: 90
+    cooldown: 60
     custom-model-data: 102
     effect: DRAGON
     breath-duration: 5
@@ -43,7 +47,7 @@ swords:
   Spider:
     enabled: true
     target-enemy-only: true
-    cooldown: 90
+    cooldown: 30
     custom-model-data: 103
     effect: SPIDER
     radius: 10
@@ -57,12 +61,12 @@ swords:
   Shulker:
     enabled: true
     target-enemy-only: true
-    cooldown: 90
+    cooldown: 40
     custom-model-data: 104
     effect: LEVITATION
     radius: 5
-    effect-level: 1
-    effect-duration: 2
+    effect-level: 2
+    effect-duration: 3
     sound:
       name: "ENTITY_SHULKER_SHOOT"
       volume: 1.0
@@ -71,18 +75,74 @@ swords:
   Phantom:
     enabled: true
     target-enemy-only: true
-    cooldown: 90
+    cooldown: 60
     custom-model-data: 105
     effect: PHANTOM
-    radius: 5
+    radius: 15
     effect-level: 0
-    effect-duration: 5
+    effect-duration: 10
     sound:
       name: "ENTITY_PHANTOM_SWOOP"
       volume: 1.0
       pitch: 1.0
 
-# Plugin has built-in support for WorldGuard safe zones.
+  Creeper:
+    enabled: true
+    target-enemy-only: true
+    cooldown: 60
+    custom-model-data: 106
+    effect: CREEPER
+    radius: 6
+    creeper-power: 1.0
+    creeper-damage: 6.0
+    sound:
+      name: "ENTITY_GENERIC_EXPLODE"
+      volume: 1.0
+      pitch: 1.0
+
+  Wither:
+    enabled: true
+    target-enemy-only: true
+    cooldown: 50
+    custom-model-data: 107
+    effect: WITHER
+    radius: 5
+    effect-level: 2
+    effect-duration: 5
+    sound:
+      name: "ENTITY_WITHER_HURT"
+      volume: 1.0
+      pitch: 1.0
+
+  Ghast:
+    enabled: true
+    target-enemy-only: true
+    cooldown: 20
+    custom-model-data: 108
+    effect: GHAST
+    ghast-power: 1.0
+    radius: 0
+    effect-level: 0
+    effect-duration: 0
+    sound:
+      name: "ENTITY_GHAST_SHOOT"
+      volume: 1.0
+      pitch: 1.0
+
+  Evoker:
+    enabled: true
+    target-enemy-only: true
+    cooldown: 35
+    custom-model-data: 109
+    effect: EVOKER
+    radius: 6
+    effect-level: 0
+    effect-duration: 0
+    sound:
+      name: "ENTITY_EVOKER_CAST_SPELL"
+      volume: 1.0
+      pitch: 1.0
+
 # Safe zones - Format: "x1,y1,z1 x2,y2,z2 world_name"
 safe-zones:
   example_zone: "0,0,0 100,100,100 world"

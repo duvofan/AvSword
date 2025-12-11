@@ -11,26 +11,30 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.StringUtil;
+import org.duvo.avsword.Friend.FriendSubCommand;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SwordCommand implements CommandExecutor, TabCompleter {
 
     private final AvSword plugin;
-    private final List<String> SPECIAL_EFFECTS = Arrays.asList("ENDERMAN", "DRAGON", "SPIDER", "PHANTOM", "NONE");
+    private final FriendSubCommand friendSubCommand;
+
+    private final List<String> SPECIAL_EFFECTS = Arrays.asList("ENDERMAN", "DRAGON", "SPIDER", "PHANTOM", "CREEPER", "GHAST", "EVOKER", "NONE");
+
     private final List<String> SETTINGS = Arrays.asList(
             "cooldown", "custom-model-data", "effect", "radius",
             "teleport-distance", "effect-level", "effect-duration",
-            "enabled", "target-enemy-only", "breath-duration", "sound.volume", "sound.pitch"
+            "enabled", "target-enemy-only", "breath-duration",
+            "creeper-power", "creeper-damage", "ghast-power",
+            "sound.volume", "sound.pitch"
     );
 
     public SwordCommand(AvSword plugin) {
         this.plugin = plugin;
+        this.friendSubCommand = new FriendSubCommand(plugin);
     }
-
 
     private void sendMsgAny(CommandSender sender, String key, String... replacements) {
         if (sender instanceof Player) {
@@ -73,7 +77,6 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
         return null;
     }
 
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("avsword.admin")) {
@@ -93,6 +96,15 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
                 plugin.reloadPlugin();
                 sendMsgAny(sender, "command.reload");
                 break;
+            case "version": case "sürüm": case "surum":
+                String version = plugin.getDescription().getVersion();
+                String lang = plugin.getConfig().getString("language", "en");
+                if ("tr".equalsIgnoreCase(lang)) {
+                    sender.sendMessage(plugin.getLanguageManager().getPrefix() + ChatColor.YELLOW + "Mevcut Sürüm: " + ChatColor.WHITE + "v" + version);
+                } else {
+                    sender.sendMessage(plugin.getLanguageManager().getPrefix() + ChatColor.YELLOW + "Current Version: " + ChatColor.WHITE + "v" + version);
+                }
+                break;
             case "list": case "liste":
                 sendMsgAny(sender, "command.list-header");
                 if (plugin.getConfig().getConfigurationSection("swords") != null) {
@@ -104,25 +116,29 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
             case "bind": case "bagla": handleBind(sender, args); break;
             case "create": case "olustur": handleCreate(sender, args); break;
             case "edit": case "duzenle": handleEdit(sender, args); break;
+            case "info": case "bilgi": handleInfo(sender, args); break;
+            case "friend":
+            case "arkadas":
+                friendSubCommand.handle(sender, args);
+                break;
             default: sendHelp(sender); break;
         }
         return true;
     }
 
-
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!sender.hasPermission("avsword.admin")) return Collections.emptyList();
 
-        List<String> completions = new ArrayList<>();
         List<String> suggestions = new ArrayList<>();
+        List<String> completions = new ArrayList<>();
         String lang = plugin.getConfig().getString("language", "en");
-
+        boolean isTr = "tr".equalsIgnoreCase(lang);
         if (args.length == 1) {
-            if (lang.equalsIgnoreCase("tr")) {
-                suggestions.addAll(Arrays.asList("ver", "bagla", "yenile", "liste", "olustur", "duzenle"));
+            if (isTr) {
+                suggestions.addAll(Arrays.asList("ver", "bagla", "yenile", "liste", "olustur", "duzenle", "bilgi", "arkadas", "sürüm"));
             } else {
-                suggestions.addAll(Arrays.asList("give", "bind", "reload", "list", "create", "edit"));
+                suggestions.addAll(Arrays.asList("give", "bind", "reload", "list", "create", "edit", "info", "friend", "version"));
             }
             StringUtil.copyPartialMatches(args[0], suggestions, completions);
             Collections.sort(completions);
@@ -130,15 +146,26 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
         }
 
         String sub = args[0].toLowerCase();
-
         if (args.length == 2) {
-            if (Arrays.asList("give", "ver").contains(sub)) return null;
-            if (Arrays.asList("bind", "bagla", "edit", "duzenle").contains(sub)) {
+            if (Arrays.asList("give", "ver").contains(sub)) {
+                return null;
+            }
+
+            if (Arrays.asList("info", "bilgi", "bind", "bagla", "edit", "duzenle").contains(sub)) {
                 if (plugin.getConfig().getConfigurationSection("swords") != null) {
                     suggestions.addAll(plugin.getConfig().getConfigurationSection("swords").getKeys(false));
                 }
             }
-            if (Arrays.asList("create", "olustur").contains(sub)) suggestions.add("<isim>");
+            else if (Arrays.asList("create", "olustur").contains(sub)) {
+                suggestions.add(isTr ? "<isim>" : "<name>");
+            }
+            else if (sub.equals("friend") || sub.equals("arkadas")) {
+                if (isTr) {
+                    suggestions.addAll(Arrays.asList("ekle", "cikar", "liste"));
+                } else {
+                    suggestions.addAll(Arrays.asList("add", "remove", "list"));
+                }
+            }
 
             StringUtil.copyPartialMatches(args[1], suggestions, completions);
             Collections.sort(completions);
@@ -151,8 +178,18 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
                     suggestions.addAll(plugin.getConfig().getConfigurationSection("swords").getKeys(false));
                 }
             }
-            if (Arrays.asList("edit", "duzenle").contains(sub)) suggestions.addAll(SETTINGS);
-            if (Arrays.asList("create", "olustur").contains(sub)) suggestions.add("<model_id>");
+            else if (Arrays.asList("edit", "duzenle").contains(sub)) {
+                suggestions.addAll(SETTINGS);
+            }
+            else if (Arrays.asList("create", "olustur").contains(sub)) {
+                suggestions.add("<model_id>");
+            }
+            else if (Arrays.asList("friend", "arkadas").contains(sub)) {
+                String action = args[1].toLowerCase();
+                if (Arrays.asList("add", "ekle", "remove", "cikar", "delete", "sil").contains(action)) {
+                    return null;
+                }
+            }
 
             StringUtil.copyPartialMatches(args[2], suggestions, completions);
             Collections.sort(completions);
@@ -164,14 +201,46 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
                 suggestions.addAll(SPECIAL_EFFECTS);
                 for (PotionEffectType type : PotionEffectType.values()) suggestions.add(type.getName());
             }
+
             if (Arrays.asList("edit", "duzenle").contains(sub)) {
                 String setting = args[2].toLowerCase();
+
                 if (setting.equals("enabled") || setting.equals("target-enemy-only")) {
                     suggestions.addAll(Arrays.asList("true", "false"));
-                } else if (setting.equals("effect")) {
-                    suggestions.addAll(SPECIAL_EFFECTS);
-                    for (PotionEffectType type : PotionEffectType.values()) suggestions.add(type.getName());
-                } else {
+                }
+                else if (setting.equals("effect")) {
+                    String currentArg = args[3].toUpperCase();
+                    String prefix = "";
+                    String toMatch = currentArg;
+
+                    if (currentArg.contains(",")) {
+                        int lastComma = currentArg.lastIndexOf(",");
+                        prefix = currentArg.substring(0, lastComma + 1);
+                        toMatch = currentArg.substring(lastComma + 1);
+                    }
+
+                    List<String> allEffects = new ArrayList<>(SPECIAL_EFFECTS);
+                    for (PotionEffectType type : PotionEffectType.values()) {
+                        allEffects.add(type.getName());
+                    }
+
+                    for (String eff : allEffects) {
+                        if (eff.startsWith(toMatch)) {
+                            suggestions.add(prefix + eff);
+                        }
+                    }
+                    return suggestions;
+                }
+                else if (setting.equals("custom-model-data")) {
+                    suggestions.addAll(Arrays.asList("101", "102", "103", "104", "105"));
+                }
+                else if (setting.contains("volume") || setting.contains("pitch") || setting.contains("power") || setting.contains("damage")) {
+                    suggestions.addAll(Arrays.asList("0.5", "1.0", "1.5", "2.0", "3.0", "5.0"));
+                }
+                else if (setting.contains("duration") || setting.contains("cooldown") || setting.contains("distance") || setting.contains("radius")) {
+                    suggestions.addAll(Arrays.asList("5", "10", "15", "20", "30", "45", "60"));
+                }
+                else {
                     suggestions.addAll(Arrays.asList("<değer>", "10", "5"));
                 }
             }
@@ -184,6 +253,56 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
         return Collections.emptyList();
     }
 
+    private void handleInfo(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            sendMsgAny(sender, "command.sword-not-found", "%sword%", "???");
+            return;
+        }
+
+        SwordData data = findSwordData(args[1]);
+        if (data == null) {
+            sendMsgAny(sender, "command.sword-not-found", "%sword%", args[1]);
+            return;
+        }
+
+        String lang = plugin.getConfig().getString("language", "en");
+        boolean isTr = "tr".equalsIgnoreCase(lang);
+
+        sender.sendMessage(ChatColor.DARK_GRAY + "--------------------------------");
+        sender.sendMessage(ChatColor.GOLD + " AvSword Info: " + ChatColor.YELLOW + capitalize(data.getKey()));
+        sender.sendMessage("");
+        sender.sendMessage(ChatColor.GRAY + " " + (isTr ? "Durum:" : "Status:") + " " + (data.isEnabled() ? ChatColor.GREEN + (isTr ? "Aktif" : "Enabled") : ChatColor.RED + (isTr ? "Pasif" : "Disabled")));
+        sender.sendMessage(ChatColor.GRAY + " " + (isTr ? "Model ID:" : "Model ID:") + " " + ChatColor.AQUA + data.getCustomModelData());
+        sender.sendMessage(ChatColor.GRAY + " " + (isTr ? "Bekleme Süresi:" : "Cooldown:") + " " + ChatColor.AQUA + data.getCooldown() + "s");
+        sender.sendMessage(ChatColor.GRAY + " " + (isTr ? "Efektler:" : "Effects:") + " " + ChatColor.LIGHT_PURPLE + String.join(", ", data.getEffectTypes()));
+
+        if (!data.getEffectTypes().contains("NONE")) {
+            if (!data.getEffectTypes().contains("CREEPER") && !data.getEffectTypes().contains("GHAST")) {
+                sender.sendMessage(ChatColor.GRAY + " " + (isTr ? "Süre/Seviye:" : "Duration/Level:") + " " + ChatColor.WHITE + (data.getEffectDuration() / 20) + "s / Lvl " + data.getEffectLevel());
+            }
+            if (data.getEffectTypes().contains("EVOKER")) {
+                sender.sendMessage(ChatColor.GRAY + " " + (isTr ? "Yarıçap:" : "Radius:") + " " + ChatColor.WHITE + data.getRadius() + " blocks");
+            } else if (!data.getEffectTypes().contains("GHAST") && !data.getEffectTypes().contains("CREEPER")) {
+                sender.sendMessage(ChatColor.GRAY + " " + (isTr ? "Yarıçap:" : "Radius:") + " " + ChatColor.WHITE + data.getRadius() + " blocks");
+            }
+        }
+
+        if (data.getEffectTypes().contains("ENDERMAN")) {
+            sender.sendMessage(ChatColor.GRAY + " " + (isTr ? "Işınlanma:" : "Teleport:") + " " + ChatColor.GREEN + data.getTeleportDistance() + " blocks");
+        }
+        if (data.getEffectTypes().contains("DRAGON")) {
+            sender.sendMessage(ChatColor.GRAY + " " + (isTr ? "Ejderha Nefesi:" : "Breath Time:") + " " + ChatColor.GREEN + data.getBreathDuration() + "s");
+        }
+        if (data.getEffectTypes().contains("CREEPER")) {
+            sender.sendMessage(ChatColor.GRAY + " " + (isTr ? "Fırlatma:" : "Launch Power:") + " " + ChatColor.RED + data.getCreeperPower());
+            sender.sendMessage(ChatColor.GRAY + " " + (isTr ? "Patlama Hasarı:" : "Explosion Dmg:") + " " + ChatColor.RED + data.getCreeperDamage());
+        }
+        if (data.getEffectTypes().contains("GHAST")) {
+            sender.sendMessage(ChatColor.GRAY + " " + (isTr ? "Top Gücü:" : "Fireball Power:") + " " + ChatColor.RED + data.getGhastPower());
+        }
+
+        sender.sendMessage(ChatColor.DARK_GRAY + "--------------------------------");
+    }
 
     private void handleCreate(CommandSender sender, String[] args) {
         if (args.length < 4) { sendMsgAny(sender, "command.create-usage"); return; }
@@ -197,9 +316,16 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
             return;
         }
         String effect = args[3].toUpperCase();
+
         if (!isValidEffect(effect)) { sendMsgAny(sender, "command.invalid-effect"); return; }
-        plugin.getSwordManager().createSword(name, modelData, effect);
-        sendMsgAny(sender, "command.create-success", "%sword%", name, "%model%", String.valueOf(modelData));
+
+        boolean success = plugin.getSwordManager().createSword(name, modelData, effect);
+
+        if (success) {
+            sendMsgAny(sender, "command.create-success", "%sword%", name, "%model%", String.valueOf(modelData));
+        } else {
+            sender.sendMessage(ChatColor.RED + "Hata: Bu Model ID (" + modelData + ") başka bir kılıç tarafından kullanılıyor!");
+        }
     }
 
     private void handleEdit(CommandSender sender, String[] args) {
@@ -212,6 +338,7 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
         String valueStr = args[3];
 
         List<String> currentEffects = data.getEffectTypes();
+
         if (setting.equals("teleport-distance") && !currentEffects.contains("ENDERMAN")) {
             sender.sendMessage(ChatColor.RED + "Hata: 'teleport-distance' ayarı için kılıçta ENDERMAN efekti olmalı!");
             return;
@@ -220,7 +347,14 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(ChatColor.RED + "Hata: 'breath-duration' ayarı için kılıçta DRAGON efekti olmalı!");
             return;
         }
-
+        if ((setting.equals("creeper-power") || setting.equals("creeper-damage")) && !currentEffects.contains("CREEPER")) {
+            sender.sendMessage(ChatColor.RED + "Hata: '" + setting + "' ayarı için kılıçta CREEPER efekti olmalı!");
+            return;
+        }
+        if (setting.equals("ghast-power") && !currentEffects.contains("GHAST")) {
+            sender.sendMessage(ChatColor.RED + "Hata: 'ghast-power' ayarı için kılıçta GHAST efekti olmalı!");
+            return;
+        }
 
         Object finalValue = null;
         String unit = "";
@@ -238,7 +372,8 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
                     String[] splits = valueStr.split(",");
                     List<String> newEffects = new ArrayList<>();
                     for(String s : splits) {
-                        if(isValidEffect(s.toUpperCase())) newEffects.add(s.toUpperCase());
+                        String clean = s.trim().toUpperCase();
+                        if(isValidEffect(clean)) newEffects.add(clean);
                     }
                     if(newEffects.isEmpty()) { sendMsgAny(sender, "command.invalid-effect"); return; }
                     finalValue = newEffects;
@@ -248,6 +383,9 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
                 }
             }
             else if (setting.contains("volume") || setting.contains("pitch")) {
+                finalValue = Double.parseDouble(valueStr);
+            }
+            else if (setting.equals("creeper-power") || setting.equals("creeper-damage") || setting.equals("ghast-power")) {
                 finalValue = Double.parseDouble(valueStr);
             }
             else if (SETTINGS.contains(setting)) {
@@ -273,6 +411,7 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
         if (args.length < 3) { sendMsgAny(sender, "command.usage-give"); return; }
         Player target = plugin.getServer().getPlayer(args[1]);
         if (target == null) { sendMsgAny(sender, "command.player-not-found"); return; }
+
         SwordData data = findSwordData(args[2]);
         if (data == null) { sendMsgAny(sender, "command.sword-not-found", "%sword%", args[2]); return; }
 
@@ -287,7 +426,18 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
             ));
             swordItem.setItemMeta(meta);
         }
-        target.getInventory().addItem(swordItem);
+
+        HashMap<Integer, ItemStack> leftover = target.getInventory().addItem(swordItem);
+
+        if (!leftover.isEmpty()) {
+            target.getWorld().dropItem(target.getLocation(), swordItem);
+            if (plugin.getConfig().getString("language", "en").equalsIgnoreCase("tr")) {
+                target.sendMessage(ChatColor.YELLOW + "Envanterin dolu olduğu için kılıç yere düştü!");
+            } else {
+                target.sendMessage(ChatColor.YELLOW + "Inventory full! Sword dropped on the ground.");
+            }
+        }
+
         sendMsgAny(sender, "command.give-success", "%sword%", capitalize(args[2]), "%player%", target.getName());
     }
 
@@ -302,11 +452,6 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
         ItemMeta meta = handItem.getItemMeta();
         if (meta != null) {
             meta.setCustomModelData(data.getCustomModelData());
-            meta.setDisplayName(getMsgRaw("item.name", "%sword%", capitalize(data.getKey())));
-            meta.setLore(Arrays.asList(
-                    getMsgRaw("item.ability", "%ability%", String.join(", ", data.getEffectTypes())),
-                    getMsgRaw("item.cooldown", "%seconds%", String.valueOf(data.getCooldown()))
-            ));
             handItem.setItemMeta(meta);
             sendMsgAny(sender, "command.bind-success", "%sword%", capitalize(args[1]));
         }
@@ -320,5 +465,6 @@ public class SwordCommand implements CommandExecutor, TabCompleter {
         sendMsgAny(sender, "command.help-edit");
         sendMsgAny(sender, "command.help-reload");
         sendMsgAny(sender, "command.help-list");
+        sender.sendMessage(ChatColor.GOLD + "/avsword info <name> " + ChatColor.GRAY + "- Show sword details.");
     }
 }

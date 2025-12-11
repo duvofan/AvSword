@@ -15,6 +15,9 @@ public class SwordData {
     private final int effectDuration;
     private final int teleportDistance;
     private final int breathDuration;
+    private final double creeperPower;
+    private final double creeperDamage;
+    private final double ghastPower;
 
     private final Sound sound;
     private final float volume;
@@ -22,7 +25,10 @@ public class SwordData {
 
     public SwordData(String key, boolean enabled, boolean targetEnemyOnly, int cooldown, int customModelData,
                      List<String> effectTypes, int radius, int effectLevel, int effectDuration,
-                     int teleportDistance, int breathDuration, Sound sound, float volume, float pitch) {
+                     int teleportDistance, int breathDuration,
+                     double creeperPower, double creeperDamage,
+                     double ghastPower,
+                     Sound sound, float volume, float pitch) {
         this.key = key;
         this.enabled = enabled;
         this.targetEnemyOnly = targetEnemyOnly;
@@ -34,6 +40,9 @@ public class SwordData {
         this.effectDuration = effectDuration;
         this.teleportDistance = teleportDistance;
         this.breathDuration = breathDuration;
+        this.creeperPower = creeperPower;
+        this.creeperDamage = creeperDamage;
+        this.ghastPower = ghastPower;
         this.sound = sound;
         this.volume = volume;
         this.pitch = pitch;
@@ -50,6 +59,10 @@ public class SwordData {
     public int getEffectDuration() { return effectDuration; }
     public int getTeleportDistance() { return teleportDistance; }
     public int getBreathDuration() { return breathDuration; }
+    public double getCreeperPower() { return creeperPower; }
+    public double getCreeperDamage() { return creeperDamage; }
+    public double getGhastPower() { return ghastPower; }
+
     public Sound getSound() { return sound; }
     public float getVolume() { return volume; }
     public float getPitch() { return pitch; }

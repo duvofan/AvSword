@@ -7,28 +7,30 @@ import java.util.UUID;
 
 public class CooldownManager {
 
-    private final Map<String, Long> cooldowns = new HashMap<>();
-
-    private String getKey(UUID uuid, int modelData) {
-        return uuid.toString() + "_" + modelData;
-    }
+    private final Map<UUID, Map<Integer, Long>> cooldowns = new HashMap<>();
 
     public long getRemainingSeconds(Player player, int modelData, int cooldownSeconds) {
-        String key = getKey(player.getUniqueId(), modelData);
-        if (!cooldowns.containsKey(key)) return 0;
+        UUID uuid = player.getUniqueId();
 
-        long timeLeft = (cooldowns.get(key) + (cooldownSeconds * 1000L)) - System.currentTimeMillis();
+        if (!cooldowns.containsKey(uuid)) return 0;
+
+        Map<Integer, Long> playerCooldowns = cooldowns.get(uuid);
+        if (!playerCooldowns.containsKey(modelData)) return 0;
+
+        long startTime = playerCooldowns.get(modelData);
+        long endTime = startTime + (cooldownSeconds * 1000L);
+        long timeLeft = endTime - System.currentTimeMillis();
+
         return Math.max(0, timeLeft / 1000);
     }
 
     public void setCooldown(Player player, int modelData) {
-        String key = getKey(player.getUniqueId(), modelData);
-        cooldowns.put(key, System.currentTimeMillis());
+        cooldowns.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>())
+                .put(modelData, System.currentTimeMillis());
     }
 
     public void removePlayer(Player player) {
-        String uuidPrefix = player.getUniqueId().toString();
-        cooldowns.keySet().removeIf(key -> key.startsWith(uuidPrefix));
+        cooldowns.remove(player.getUniqueId());
     }
 
     public void clearAll() {
